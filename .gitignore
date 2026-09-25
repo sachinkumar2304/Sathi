@@ -1,0 +1,65 @@
+# Environments & Credentials (STRICT)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+*.p12
+credentials.json
+client_secret*.json
+
+# Dependencies
+node_modules/
+venv/
+env/
+ENV/
+.venv/
+
+# Build & Dist
+dist/
+build/
+*.egg-info/
+out/
+
+# Python cache & logs
+__pycache__/
+*.py[cod]
+*$py.class
+*.log
+logs/
+
+# Storage & Temporary
+storage/
+uploads/
+processing/
+outputs/
+temp/
+tmp/
+
+# Cache & Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
+
+# Large Model weights & Binaries
+*.pth
+*.pt
+*.bin
+*.onnx
+*.exe
+ffmpeg*/
+models/
+!app/models/
+
+# OS & Editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# IDE / Agent specific artifacts
+.gemini/
