@@ -270,17 +270,41 @@ export const PMAJAYVoiceInterview: React.FC = () => {
             </h1>
           </div>
 
-          {/* Turn progress pill */}
-          <div className="flex items-center space-x-3 bg-white border border-[#CDDDD5] px-3.5 py-1.5 rounded-lg shadow-sm">
-            <div className="flex items-center space-x-1.5 text-xs text-[#325243]">
-              <Clock className="w-3.5 h-3.5 text-[#417B60]" />
-              <span>Turn {currentTurn} of {totalTurns}</span>
-            </div>
-            <div className="w-20 bg-[#E2ECE7] h-2 rounded-full overflow-hidden">
-              <div
-                className="bg-[#31634D] h-full transition-all duration-300"
-                style={{ width: `${(currentTurn / totalTurns) * 100}%` }}
-              ></div>
+          {/* Turn progress pill & Direct Voice Action */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={toggleListening}
+              className={`px-4 py-2 rounded-xl font-bold text-xs sm:text-sm flex items-center gap-2 shadow-md transition-all active:scale-95 ${
+                isListening
+                  ? "bg-red-600 text-white animate-pulse ring-4 ring-red-300"
+                  : "bg-[#138808] hover:bg-[#0f6b06] text-white ring-2 ring-emerald-400/40"
+              }`}
+            >
+              {isListening ? (
+                <>
+                  <MicOff className="w-4 h-4 animate-bounce" />
+                  <span>सुन रहा हूँ... बोलिए (Stop Mic)</span>
+                </>
+              ) : (
+                <>
+                  <Mic className="w-4 h-4 animate-pulse" />
+                  <span>माइक दबाकर बोलें (Start Voice)</span>
+                </>
+              )}
+            </button>
+
+            <div className="hidden sm:flex items-center space-x-3 bg-white border border-[#CDDDD5] px-3.5 py-1.5 rounded-lg shadow-sm">
+              <div className="flex items-center space-x-1.5 text-xs text-[#325243]">
+                <Clock className="w-3.5 h-3.5 text-[#417B60]" />
+                <span>Turn {currentTurn} of {totalTurns}</span>
+              </div>
+              <div className="w-20 bg-[#E2ECE7] h-2 rounded-full overflow-hidden">
+                <div
+                  className="bg-[#31634D] h-full transition-all duration-300"
+                  style={{ width: `${(currentTurn / totalTurns) * 100}%` }}
+                ></div>
+              </div>
             </div>
           </div>
         </div>

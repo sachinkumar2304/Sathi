@@ -459,11 +459,40 @@ export const VoiceGuideWidget: React.FC = () => {
                   )}
                 </div>
               ) : (
-                <div className="text-xs text-blue-200 bg-[#001c45] p-2 rounded-xl">
-                  {location.pathname === "/pmajay/interview" && tr.interview_cue}
-                  {location.pathname === "/pmajay/recommendations" && tr.recommendations_cue}
-                  {location.pathname === "/pmajay/opportunities" && tr.opportunities_cue}
-                  {location.pathname === "/pmajay/admin" && tr.admin_cue}
+                <div className="space-y-2">
+                  <div className="text-xs text-blue-200 bg-[#001c45] p-2.5 rounded-xl border border-blue-400/20 leading-relaxed">
+                    {location.pathname === "/pmajay/interview" && tr.interview_cue}
+                    {location.pathname === "/pmajay/recommendations" && tr.recommendations_cue}
+                    {location.pathname === "/pmajay/opportunities" && tr.opportunities_cue}
+                    {location.pathname === "/pmajay/admin" && tr.admin_cue}
+                  </div>
+
+                  {location.pathname === "/pmajay/interview" ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Trigger interview mic button
+                        const micBtn = document.querySelector('button[title*="Voice Input"], button[title*="Listening"]') as HTMLButtonElement;
+                        if (micBtn) {
+                          micBtn.click();
+                        } else {
+                          window.scrollTo({ top: 300, behavior: "smooth" });
+                        }
+                      }}
+                      className="w-full bg-gradient-to-r from-[#138808] to-[#0f6b06] hover:from-[#0f6b06] hover:to-[#0b4d04] text-white font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
+                    >
+                      <Mic className="w-4 h-4 text-white animate-pulse" />
+                      <span>माइक दबाकर बोलना शुरू करें (Start Mic)</span>
+                    </button>
+                  ) : (
+                    <Link
+                      to="/pmajay/interview"
+                      className="w-full bg-gradient-to-r from-[#FF9933] to-[#e67e00] hover:from-[#e67e00] hover:to-[#c96c00] text-[#00245A] font-bold text-xs py-2 px-3 rounded-xl flex items-center justify-center gap-2 shadow-md transition-all active:scale-[0.98]"
+                    >
+                      <Mic className="w-4 h-4 text-[#00245A]" />
+                      <span>वॉयस इंटरव्यू शुरू करें</span>
+                    </Link>
+                  )}
                 </div>
               )}
             </div>
