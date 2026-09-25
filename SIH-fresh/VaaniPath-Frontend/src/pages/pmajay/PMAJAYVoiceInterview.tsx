@@ -116,7 +116,7 @@ export const PMAJAYVoiceInterview: React.FC = () => {
     initSession();
   }, [selectedLang]);
 
-  // Speech Synthesis
+  // Speech Synthesis with replay
   const speakAloud = (text: string, lang: string) => {
     if ("speechSynthesis" in window) {
       window.speechSynthesis.cancel();
@@ -132,9 +132,17 @@ export const PMAJAYVoiceInterview: React.FC = () => {
 
   // Browser Speech Recognition Fallback / Sarvam integration
   const toggleListening = () => {
+    // If assistant is speaking, stop it so beneficiary can talk
+    if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+
     if (isListening) {
       if (recognitionRef.current) {
-        recognitionRef.current.stop();
+        try {
+          recognitionRef.current.stop();
+        } catch (e) {}
       }
       setIsListening(false);
       return;
@@ -152,20 +160,31 @@ export const PMAJAYVoiceInterview: React.FC = () => {
       const recognition = new SpeechRecognition();
       recognition.lang = selectedLang.startsWith("hi") ? "hi-IN" : "en-IN";
       recognition.interimResults = true;
-      recognition.continuous = false;
+      recognition.continuous = true;
 
       recognition.onstart = () => {
         setIsListening(true);
       };
 
       recognition.onresult = (event: any) => {
-        const transcript = Array.from(event.results)
-          .map((r: any) => r[0].transcript)
-          .join("");
-        setUserInput(transcript);
+        let finalTranscript = "";
+        let interimTranscript = "";
+        for (let i = 0; i < event.results.length; i++) {
+          const transcript = event.results[i][0].transcript;
+          if (event.results[i].isFinal) {
+            finalTranscript += transcript + " ";
+          } else {
+            interimTranscript += transcript;
+          }
+        }
+        const text = (finalTranscript + interimTranscript).trim();
+        if (text) {
+          setUserInput(text);
+        }
       };
 
-      recognition.onerror = () => {
+      recognition.onerror = (err: any) => {
+        console.warn("Speech recognition error:", err);
         setIsListening(false);
       };
 
@@ -176,6 +195,7 @@ export const PMAJAYVoiceInterview: React.FC = () => {
       recognitionRef.current = recognition;
       recognition.start();
     } catch (err) {
+      console.error("Speech recognition start failed:", err);
       setIsListening(false);
     }
   };
@@ -271,7 +291,22 @@ export const PMAJAYVoiceInterview: React.FC = () => {
           </div>
 
           {/* Turn progress pill & Direct Voice Action */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+            {/* Listen / Replay Assistant Question */}
+            <button
+              type="button"
+              onClick={() => {
+                const lastQuestion = messages.filter((m) => m.sender === "assistant").slice(-1)[0]?.text;
+                if (lastQuestion) speakAloud(lastQuestion, selectedLang);
+              }}
+              className="px-3.5 py-2 rounded-xl font-semibold text-xs sm:text-sm flex items-center gap-1.5 bg-white hover:bg-emerald-50 text-[#1b4332] border border-[#CCDCD4] shadow-sm transition-all"
+              title="सहायक का सवाल सुनें"
+            >
+              <Volume2 className="w-4 h-4 text-[#2D6A4F]" />
+              <span>सवाल सुनें (Play Audio)</span>
+            </button>
+
+            {/* Beneficiary Speak Mic */}
             <button
               type="button"
               onClick={toggleListening}
@@ -284,12 +319,12 @@ export const PMAJAYVoiceInterview: React.FC = () => {
               {isListening ? (
                 <>
                   <MicOff className="w-4 h-4 animate-bounce" />
-                  <span>सुन रहा हूँ... बोलिए (Stop Mic)</span>
+                  <span>सुन रहा हूँ... बोलिए (Stop)</span>
                 </>
               ) : (
                 <>
                   <Mic className="w-4 h-4 animate-pulse" />
-                  <span>माइक दबाकर बोलें (Start Voice)</span>
+                  <span>माइक दबाकर उत्तर दें (Speak)</span>
                 </>
               )}
             </button>
@@ -354,7 +389,19 @@ export const PMAJAYVoiceInterview: React.FC = () => {
                   >
                     <div className="flex items-center justify-between text-[11px] opacity-75 mb-1">
                       <span>{m.sender === "user" ? "Beneficiary (आवेदक)" : "PM-AJAY Kaushal Mitra"}</span>
-                      <span>{m.timestamp}</span>
+                      <div className="flex items-center gap-2">
+                        <span>{m.timestamp}</span>
+                        {m.sender === "assistant" && (
+                          <button
+                            type="button"
+                            onClick={() => speakAloud(m.text, selectedLang)}
+                            title="सवाल दोबारा सुनें"
+                            className="p-1 hover:bg-black/10 rounded text-emerald-800 transition-colors"
+                          >
+                            <Volume2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
                     </div>
                     <p>{m.text}</p>
                   </div>

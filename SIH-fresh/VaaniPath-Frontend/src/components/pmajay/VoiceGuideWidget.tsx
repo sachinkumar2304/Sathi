@@ -154,10 +154,8 @@ export const VoiceGuideWidget: React.FC = () => {
   useEffect(() => {
     setDismissedPageBanner(false);
     if (location.pathname === "/pmajay/interview") {
-      const timer = setTimeout(() => {
-        playVoice(tr.interview_cue);
-      }, 700);
-      return () => clearTimeout(timer);
+      // Do not interrupt the interview question with tour speech
+      return;
     } else if (location.pathname === "/pmajay/recommendations") {
       const timer = setTimeout(() => {
         playVoice(tr.recommendations_cue);
